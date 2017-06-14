@@ -23,4 +23,10 @@
   	</options>
   </tinytool>
   
+  <about>
+  	<version>1.0</version>
+  	<author>johnson</author>
+  	<email>mfdboy@163.com</email>
+  </about>
+  
 </configuration>

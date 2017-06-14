@@ -3,7 +3,7 @@ package local.johnson.finalutils;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 
-import local.johnson.finalutils.panel.Base;
+import local.johnson.finalutils.panel.Background;
 
 public class FinalUtils {
 	
@@ -21,7 +21,7 @@ public class FinalUtils {
 		frame.setLocation((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2,
 				(int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new Base());
+		frame.add(new Background());
 		frame.setVisible(true);
 	}
 

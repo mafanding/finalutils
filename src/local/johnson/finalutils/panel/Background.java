@@ -11,7 +11,7 @@ import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
-public class Base extends JPanel {
+public class Background extends JPanel {
 	
 	protected JTabbedPane tabPane;
 	
@@ -20,13 +20,11 @@ public class Base extends JPanel {
 	protected final String PACKAGE_DOT = ".";
 	
 	protected final String CONFIG_PATH = "finalutils.xml";
-	
-	protected Configurations configs;
 
-	public Base() {
+	public Background() {
 		tabPane = new JTabbedPane();
 		List<String> tabList;
-		configs = new Configurations();
+		Configurations configs = new Configurations();
 		try {
 			XMLConfiguration config = configs.xml(CONFIG_PATH);
 			tabList = config.getList(String.class, "tabs.tab");
@@ -42,17 +40,17 @@ public class Base extends JPanel {
 		}
 	}
 
-	public Base(LayoutManager layout) {
+	public Background(LayoutManager layout) {
 		super(layout);
 		// TODO Auto-generated constructor stub
 	}
 
-	public Base(boolean isDoubleBuffered) {
+	public Background(boolean isDoubleBuffered) {
 		super(isDoubleBuffered);
 		// TODO Auto-generated constructor stub
 	}
 
-	public Base(LayoutManager layout, boolean isDoubleBuffered) {
+	public Background(LayoutManager layout, boolean isDoubleBuffered) {
 		super(layout, isDoubleBuffered);
 		// TODO Auto-generated constructor stub
 	}

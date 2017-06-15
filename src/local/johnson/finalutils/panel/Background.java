@@ -13,9 +13,14 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 
 public class Background extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected JTabbedPane tabPane;
 	
-	protected final String PACKAGE_NAME = getClass().getPackage().getName();
+	protected final String PACKAGE_NAME = getClass().getPackage().getName().toLowerCase();
 	
 	protected final String PACKAGE_DOT = ".";
 	

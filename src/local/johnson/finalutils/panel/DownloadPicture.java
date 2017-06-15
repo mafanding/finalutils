@@ -1,7 +1,6 @@
 package local.johnson.finalutils.panel;
 
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -15,6 +14,11 @@ import local.johnson.finalutils.event.downloadpicture.Process;
 
 public class DownloadPicture extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public JButton chooseButton = new JButton();
 
 	public JButton processButton = new JButton();

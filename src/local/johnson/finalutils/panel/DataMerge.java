@@ -1,10 +1,14 @@
 package local.johnson.finalutils.panel;
 
 import java.awt.LayoutManager;
-
 import javax.swing.JPanel;
 
 public class DataMerge extends JPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public DataMerge() {
 		// TODO Auto-generated constructor stub

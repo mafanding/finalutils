@@ -7,9 +7,14 @@ import javax.swing.JTextPane;
 
 public class Default extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public JTextPane msgPane = null;
 
 	public Default() {
+		msgPane = new JTextPane();
 		msgPane.setText("wait for develop");
 		add(msgPane);
 	}

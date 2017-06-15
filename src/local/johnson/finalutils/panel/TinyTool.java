@@ -2,29 +2,31 @@ package local.johnson.finalutils.panel;
 
 import java.awt.BorderLayout;
 import java.awt.LayoutManager;
-import java.awt.Toolkit;
 import java.util.List;
-
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-
+import local.johnson.finalutils.event.tinytool.ComboBox;
 import local.johnson.finalutils.panel.tinytool.Default;
 import local.johnson.finalutils.panel.tinytool.Replace;
 import local.johnson.finalutils.panel.tinytool.Unique;
 
 public class TinyTool extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected final String CONFIG_PATH = "finalutils.xml";
 	
-	protected JComboBox comboBox;
+	public JPanel topPane;
 	
-	protected JPanel topPane;
+	public JPanel otherPane;
 	
-	protected JPanel otherPane;
+	public JComboBox<?> comboBox;
 
 	public TinyTool() {
 		topPane = new JPanel();
@@ -34,7 +36,8 @@ public class TinyTool extends JPanel {
 		try {
 			XMLConfiguration config = configs.xml(CONFIG_PATH);
 			optList = config.getList(String.class, "tinytool.options.option");
-			comboBox = new JComboBox(optList.toArray());
+			comboBox = new JComboBox<>(optList.toArray());
+			comboBox.addActionListener(new ComboBox(this));
 			topPane.add(comboBox);
 			switch (optList.get(comboBox.getSelectedIndex())) {
 				case "Replace":
@@ -73,14 +76,17 @@ public class TinyTool extends JPanel {
 	
 	public void loadUniquePanel() {
 		otherPane.add(new Unique());
+		otherPane.validate();
 	}
 
 	public void loadReplacePanel() {
 		otherPane.add(new Replace());
+		otherPane.validate();
 	}
 
 	public void loadDefaultPanel() {
 		otherPane.add(new Default());
+		otherPane.validate();
 	}
 
 }

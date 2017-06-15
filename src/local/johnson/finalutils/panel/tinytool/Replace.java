@@ -1,17 +1,22 @@
 package local.johnson.finalutils.panel.tinytool;
 
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 import java.awt.LayoutManager;
-
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.LineBorder;
+import local.johnson.finalutils.event.tinytool.replace.Process;
 
 public class Replace extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public JTextArea sourceText = null;
 
 	public JTextArea destText = null;
@@ -25,24 +30,24 @@ public class Replace extends JPanel {
 	public JButton processButton = null;
 
 	public Replace() {
-		sourceText = new JTextArea(15, 5);
-		destText = new JTextArea(15, 5);
+		sourceText = new JTextArea(12, 5);
+		destText = new JTextArea(12, 5);
 		directionText = new JTextPane();
 		processButton = new JButton();
 		search = new JTextField(1);
 		replace = new JTextField(1);
 		processButton.setText("process");
-		//processButton.addActionListener(new ProcessEvent(this));
+		processButton.addActionListener(new Process(this));
 		sourceText.setBorder(LineBorder.createBlackLineBorder());
 		destText.setBorder(LineBorder.createBlackLineBorder());
 		sourceText.setLineWrap(true);
 		destText.setLineWrap(true);
 		directionText.setText("=>");
 		directionText.setEditable(false);
-		setLayout(new GridLayout(1, 6));
+		setLayout(new FlowLayout());
 		add(sourceText);
-		add(directionText);
 		add(search);
+		add(directionText);
 		add(replace);
 		add(destText);
 		add(processButton);

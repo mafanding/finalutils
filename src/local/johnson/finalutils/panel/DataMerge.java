@@ -55,6 +55,7 @@ public class DataMerge extends JPanel {
 			add(input);
 			add(chooseButton);
 			add(processButton);
+			add(msg);
 			setLayout(new FlowLayout());
 		} catch (ConfigurationException e) {
 			// TODO Auto-generated catch block

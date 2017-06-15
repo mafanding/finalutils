@@ -8,14 +8,6 @@
   	<tab>About</tab>
   </tabs>
   
-  <datamerge>
-  	<options>
-  		<option>AliData</option>
-  		<option>DeepData</option>
-  		<option>CapacityData</option>
-  	</options>
-  </datamerge>
-  
   <tinytool>
   	<options>
   		<option>Unique</option>
@@ -23,6 +15,14 @@
   		<option>Default</option>
   	</options>
   </tinytool>
+  
+  <datamerge>
+  	<options>
+  		<option>AliData</option>
+  		<option>CapacityData</option>
+  		<option>DeepData</option>
+  	</options>
+  </datamerge>
   
   <about>
   	<version>1.0</version>

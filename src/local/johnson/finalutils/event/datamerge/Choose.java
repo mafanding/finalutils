@@ -2,9 +2,7 @@ package local.johnson.finalutils.event.datamerge;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JFileChooser;
-
 import local.johnson.finalutils.panel.DataMerge;
 
 public class Choose implements ActionListener {

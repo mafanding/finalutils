@@ -12,6 +12,7 @@
   	<options>
   		<option>Unique</option>
   		<option>Replace</option>
+  		<option>Unixtime</option>
   		<option>Default</option>
   	</options>
   </tinytool>

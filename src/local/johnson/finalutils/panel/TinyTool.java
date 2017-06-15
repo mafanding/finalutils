@@ -12,6 +12,7 @@ import local.johnson.finalutils.event.tinytool.ComboBox;
 import local.johnson.finalutils.panel.tinytool.Default;
 import local.johnson.finalutils.panel.tinytool.Replace;
 import local.johnson.finalutils.panel.tinytool.Unique;
+import local.johnson.finalutils.panel.tinytool.Unixtime;
 
 public class TinyTool extends JPanel {
 	
@@ -45,6 +46,9 @@ public class TinyTool extends JPanel {
 					break;
 				case "Unique":
 					loadUniquePanel();
+					break;
+				case "Unixtime":
+					loadUnixtimePanel();
 					break;
 				default:
 					loadDefaultPanel();
@@ -81,6 +85,11 @@ public class TinyTool extends JPanel {
 
 	public void loadReplacePanel() {
 		otherPane.add(new Replace());
+		otherPane.validate();
+	}
+	
+	public void loadUnixtimePanel() {
+		otherPane.add(new Unixtime());
 		otherPane.validate();
 	}
 

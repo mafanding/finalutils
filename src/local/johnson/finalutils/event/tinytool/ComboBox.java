@@ -12,6 +12,8 @@ public class ComboBox implements ActionListener {
 	protected final String OPTION_UNIQUE = "Unique";
 
 	protected final String OPTION_REPLACE = "Replace";
+	
+	protected final String OPTION_UNIXTIME = "Unixtime";
 
 	protected final String OPTION_DEFAULT = "Default";
 
@@ -28,8 +30,11 @@ public class ComboBox implements ActionListener {
 		} else if (tinyToolPanel.comboBox.getItemAt(tinyToolPanel.comboBox.getSelectedIndex()).toString()
 				.equals(OPTION_REPLACE)) {
 			tinyToolPanel.loadReplacePanel();
+		} else if (tinyToolPanel.comboBox.getItemAt(tinyToolPanel.comboBox.getSelectedIndex()).toString()
+				.equals(OPTION_UNIXTIME)) {
+			tinyToolPanel.loadUnixtimePanel();
 		} else {
-			tinyToolPanel.loadDefaultPanel();;
+			tinyToolPanel.loadDefaultPanel();
 		}
 		tinyToolPanel.otherPane.repaint();
 	}

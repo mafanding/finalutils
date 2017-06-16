@@ -3,9 +3,13 @@ package local.johnson.finalutils.handle.datamerge;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import jxl.Cell;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
 import local.johnson.finalutils.panel.DataMerge;
 
 public class CapacityData {
@@ -30,7 +34,7 @@ public class CapacityData {
 		
 		File files[] = directory.listFiles();
 		for (File file : files) {
-			if (file.getName().endsWith(".xlsx")) {
+			if (file.getName().endsWith(".xls")) {
 				filelist.add(file);
 			}
 		}
@@ -47,7 +51,26 @@ public class CapacityData {
 	}
 	
 	protected void mergeSimilarFiles() {
-		//TODO
+		HashMap<String, File> mapList = new HashMap<String, File>();
+		for (File file : filelist) {
+			try {
+				Workbook wb = Workbook.getWorkbook(file);
+				Cell headers[] = wb.getSheet(0).getRow(0);
+				String header = "";
+				for (Cell h : headers) {
+					header.concat(h.getContents());
+				}
+				if (mapList.containsKey(header)) {
+					WritableWorkbook mainwb = Workbook.createWorkbook(mapList.get(header));
+					mainwb.close();
+				} else {
+					mapList.put(header, file);
+				}
+			} catch (BiffException | IOException | WriteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	protected void computePrimaryFieldAndMasterFile() {

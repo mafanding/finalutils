@@ -2,6 +2,7 @@ package local.johnson.finalutils.event.tinytool.unixtime;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,10 +20,18 @@ public class Process implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String sourceText = unixtime.sourceText.getText();
+		if (sourceText.isEmpty()) {
+			return;
+		}
 		if (NumberUtils.isCreatable(sourceText)) {
 			unixtime.destText.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(new Long(sourceText) * 1000)));
 		} else {
-			System.out.println("i am formatter date");
+			try {
+				unixtime.destText.setText(Timestamp.valueOf(sourceText).getTime()/1000 + "");
+			} catch (IllegalArgumentException exception) {
+				unixtime.destText.setText("Timestamp format must be yyyy-mm-dd hh:mm:ss");
+				exception.printStackTrace();
+			}
 		}
 	}
 

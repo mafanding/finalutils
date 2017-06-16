@@ -26,8 +26,8 @@ public class Unixtime extends JPanel {
 	public JButton processButton = null;
 
 	public Unixtime() {
-		sourceText = new JTextArea(3, 6);
-		destText = new JTextArea(3, 6);
+		sourceText = new JTextArea(3, 8);
+		destText = new JTextArea(3, 8);
 		directionText = new JTextPane();
 		processButton = new JButton();
 		processButton.setText("process");

@@ -14,6 +14,8 @@ public class CapacityData {
 	
 	protected String primaryField = "";
 	
+	protected File masterFile = null;
+	
 	public DataMerge dataMerge;
 
 	public CapacityData(DataMerge dataMerge) {
@@ -39,7 +41,7 @@ public class CapacityData {
 			return 1;
 		}
 		
-		computePrimaryField();
+		computePrimaryFieldAndMasterFile();
 		
 		return 0;
 	}
@@ -48,7 +50,7 @@ public class CapacityData {
 		//TODO
 	}
 	
-	protected void computePrimaryField() {
+	protected void computePrimaryFieldAndMasterFile() {
 		ArrayList<String> mapList = new ArrayList<String>();
 		for (File file : filelist) {
 			try {
@@ -59,9 +61,12 @@ public class CapacityData {
 						mapList.add(header.getContents());
 					} else {
 						primaryField = header.getContents();
+						masterFile = file;
+						wb.close();
 						return;
 					}
 				}
+				wb.close();
 			} catch (BiffException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

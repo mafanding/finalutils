@@ -1,20 +1,20 @@
 package local.johnson.finalutils.handle.datamerge;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-
-import jxl.Cell;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
+import java.util.Iterator;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
 import local.johnson.finalutils.panel.DataMerge;
 
 public class CapacityData {
 	
-	protected ArrayList<File> filelist = new ArrayList<File>();
+	protected File filesList[];
 	
 	protected String primaryField = "";
 	
@@ -32,16 +32,11 @@ public class CapacityData {
 			return 1;
 		}
 		
-		File files[] = directory.listFiles();
-		for (File file : files) {
-			if (file.getName().endsWith(".xls")) {
-				filelist.add(file);
-			}
-		}
+		filesList = directory.listFiles(new ExcelFilenameFilter());
 		
 		mergeSimilarFiles();
 		
-		if (filelist.size() != 2) {
+		if (filesList.length != 2) {
 			return 1;
 		}
 		
@@ -52,21 +47,21 @@ public class CapacityData {
 	
 	protected void mergeSimilarFiles() {
 		HashMap<String, File> mapList = new HashMap<String, File>();
-		for (File file : filelist) {
+		for (File file : filesList) {
 			try {
-				Workbook wb = Workbook.getWorkbook(file);
-				Cell headers[] = wb.getSheet(0).getRow(0);
+				Workbook wb = WorkbookFactory.create(file);
+				Iterator<Cell> firstRow = wb.getSheetAt(0).getRow(0).cellIterator();
 				String header = "";
-				for (Cell h : headers) {
-					header.concat(h.getContents());
+				while (firstRow.hasNext()) {
+					header.concat(firstRow.next().getStringCellValue());
 				}
 				if (mapList.containsKey(header)) {
-					WritableWorkbook mainwb = Workbook.createWorkbook(mapList.get(header));
-					mainwb.close();
+					//TODO
 				} else {
+					System.out.println(header);
 					mapList.put(header, file);
 				}
-			} catch (BiffException | IOException | WriteException e) {
+			} catch (IOException | EncryptedDocumentException | InvalidFormatException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -74,27 +69,41 @@ public class CapacityData {
 	}
 	
 	protected void computePrimaryFieldAndMasterFile() {
-		ArrayList<String> mapList = new ArrayList<String>();
-		for (File file : filelist) {
-			try {
-				Workbook wb = Workbook.getWorkbook(file);
-				Cell headers[] = wb.getSheet(0).getRow(0);
-				for (Cell header : headers) {
-					if (!mapList.contains(header.getContents())) {
-						mapList.add(header.getContents());
-					} else {
-						primaryField = header.getContents();
-						masterFile = file;
-						wb.close();
-						return;
-					}
-				}
-				wb.close();
-			} catch (BiffException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		//TODO
 	}
 
+}
+
+/**
+ * An instance of this class can be used to control the files returned
+ * be a call to the listFiles() method when made on an instance of the
+ * File class and that object refers to a folder/directory
+ */
+class ExcelFilenameFilter implements FilenameFilter {
+
+    /**
+     * Determine those files that will be returned by a call to the
+     * listFiles() method. In this case, the name of the file must end with
+     * either of the following two extension; '.xls' or '.xlsx'. For the
+     * future, it is very possible to parameterise this and allow the
+     * containing class to pass, for example, an array of Strings to this
+     * class on instantiation. Each element in that array could encapsulate
+     * a valid file extension - '.xls', '.xlsx', '.xlt', '.xlst', etc. These
+     * could then be used to control which files were returned by the call
+     * to the listFiles() method.
+     *
+     * @param file An instance of the File class that encapsulates a handle
+     *             referring to the folder/directory that contains the file.
+     * @param name An instance of the String class that encapsulates the
+     *             name of the file.
+     * @return A boolean value that indicates whether the file should be
+     *         included in the array retirned by the call to the listFiles()
+     *         method. In this case true will be returned if the name of the
+     *         file ends with either '.xls' or '.xlsx' and false will be
+     *         returned in all other instances.
+     */
+    @Override
+    public boolean accept(File file, String name) {
+        return(name.endsWith(".xls") || name.endsWith(".xlsx"));
+    }
 }

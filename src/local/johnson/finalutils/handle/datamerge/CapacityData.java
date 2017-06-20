@@ -28,12 +28,15 @@ public class CapacityData {
 	
 	protected String primaryField = "";
 	
+	protected HashMap<File, ArrayList<String>> headerList;
+	
 	protected File masterFile = null;
 	
 	public DataMerge dataMerge;
 
 	public CapacityData(DataMerge dataMerge) {
 		this.dataMerge = dataMerge;
+		headerList = new HashMap<File, ArrayList<String>>(); 
 	}
 	
 	public int handle() {
@@ -85,6 +88,7 @@ public class CapacityData {
 					file.delete();
 				} else {
 					mapList.put(header, file);
+					headerList.put(file, rowConsumer.getHeaderList());
 				}
 			} catch (IOException | EncryptedDocumentException | InvalidFormatException e) {
 				// TODO Auto-generated catch block
@@ -98,7 +102,20 @@ public class CapacityData {
 	}
 	
 	protected void computePrimaryFieldAndMasterFile() {
-		//TODO
+		ArrayList compareHeader = new ArrayList();
+		for (File file : filesList) {
+			if (compareHeader.isEmpty()) {
+				compareHeader = headerList.get(file);
+			} else {
+				for (Object header : headerList.get(file)) {
+					if (compareHeader.contains(header)) {
+						primaryField = header.toString();
+						break;
+					}
+				}
+			}
+		}
+		System.out.println(primaryField);
 	}
 
 }
@@ -141,17 +158,25 @@ class RowConsumer implements Consumer<Object> {
 	
 	protected StringBuffer header;
 	
+	protected ArrayList<String> headerList;
+	
 	RowConsumer() {
 		header = new StringBuffer();
+		headerList = new ArrayList<String>();
 	}
 
 	@Override
 	public void accept(Object t) {
 		header.append(t.toString());
+		headerList.add(t.toString());
 	}
 	
 	public String getHeaderString() {
 		return header.toString();
+	}
+	
+	public ArrayList<String> getHeaderList() {
+		return headerList;
 	}
 	
 }

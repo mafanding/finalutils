@@ -1,19 +1,16 @@
 package local.johnson.finalutils.handle.datamerge;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -79,6 +76,7 @@ public class CapacityData {
 							rowList.add(mainSheet.getRow(i));
 						}
 						mergedList.put(header, rowList);
+						mainwb.close();
 					}
 					ArrayList<Row> rowList = mergedList.get(header);
 					for (int i = 1; i <= wb.getSheetAt(0).getLastRowNum(); i++) {
@@ -102,7 +100,7 @@ public class CapacityData {
 	}
 	
 	protected void computePrimaryFieldAndMasterFile() {
-		ArrayList compareHeader = new ArrayList();
+		ArrayList<String> compareHeader = new ArrayList<String>();
 		for (File file : filesList) {
 			if (compareHeader.isEmpty()) {
 				compareHeader = headerList.get(file);
@@ -115,7 +113,6 @@ public class CapacityData {
 				}
 			}
 		}
-		System.out.println(primaryField);
 	}
 
 }
@@ -192,11 +189,12 @@ class MergedBiConsumer implements BiConsumer<String, ArrayList<Row>> {
 	@Override
 	public void accept(String t, ArrayList<Row> u) {
 		try {
-			Workbook wb = WorkbookFactory.create(mapList.get(t));
+			Workbook wb = WorkbookFactory.create(new FileInputStream(mapList.get(t)));
 			rebuild(wb, u);
-			wb.getClass().getMethod("write", null).invoke(wb, null);
+			FileOutputStream fos = new FileOutputStream(mapList.get(t));
+			wb.write(fos);
 			wb.close();
-		} catch (EncryptedDocumentException | InvalidFormatException | IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+		} catch (EncryptedDocumentException | InvalidFormatException | IOException | IllegalArgumentException | SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

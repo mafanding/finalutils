@@ -21,19 +21,13 @@ import local.johnson.finalutils.panel.DataMerge;
 
 public class CapacityData {
 	
-	protected File filesList[];
-	
-	protected String primaryField = "";
-	
-	protected HashMap<File, ArrayList<String>> headerList;
-	
-	protected File masterFile = null;
+	protected HashMap<String, FileInfo> fileInfoMap;
 	
 	public DataMerge dataMerge;
 
 	public CapacityData(DataMerge dataMerge) {
 		this.dataMerge = dataMerge;
-		headerList = new HashMap<File, ArrayList<String>>(); 
+		fileInfoMap = new HashMap<String, FileInfo>();
 	}
 	
 	public int handle() {
@@ -42,76 +36,49 @@ public class CapacityData {
 			return 1;
 		}
 		
-		filesList = directory.listFiles(new ExcelFilenameFilter());
-		
-		mergeSimilarFiles();
-		
-		filesList = directory.listFiles(new ExcelFilenameFilter());
-		
-		if (filesList.length != 2) {
-			return 1;
+		try {
+			initFileInfoMap(directory);
+		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		computePrimaryFieldAndMasterFile();
 		
 		return 0;
 	}
 	
-	protected void mergeSimilarFiles() {
-		HashMap<String, File> mapList = new HashMap<String, File>();
-		HashMap<String, ArrayList<Row>> mergedList = new HashMap<String, ArrayList<Row>>();
-		for (File file : filesList) {
-			try {
-				Workbook wb = WorkbookFactory.create(file);
-				Row firstRow = wb.getSheetAt(0).getRow(0);
-				RowConsumer rowConsumer = new RowConsumer();
-				firstRow.forEach(rowConsumer);
-				String header = rowConsumer.getHeaderString();
-				if (mapList.containsKey(header)) {
-					if (!mergedList.containsKey(header)) {
-						ArrayList<Row> rowList = new ArrayList<Row>();
-						Workbook mainwb = WorkbookFactory.create(mapList.get(header));
-						Sheet mainSheet = mainwb.getSheetAt(0);
-						for (int i = 0; i <= mainSheet.getLastRowNum(); i++) {
-							rowList.add(mainSheet.getRow(i));
-						}
-						mergedList.put(header, rowList);
-						mainwb.close();
-					}
-					ArrayList<Row> rowList = mergedList.get(header);
-					for (int i = 1; i <= wb.getSheetAt(0).getLastRowNum(); i++) {
-						rowList.add(wb.getSheetAt(0).getRow(i));
-					}
-					mergedList.put(header, rowList);
-					file.delete();
+	protected void initFileInfoMap(File directory) throws EncryptedDocumentException, InvalidFormatException, IOException {
+		File fileArr[] = directory.listFiles(new ExcelFilenameFilter());
+		for (File file : fileArr) {
+			Workbook wb = WorkbookFactory.create(file);
+			Sheet sheet = wb.getSheetAt(0);
+			Row header = sheet.getRow(sheet.getFirstRowNum());
+			StringBuffer buffer = new StringBuffer();
+			ArrayList<String> headersList = new ArrayList<String>();
+			for (int i = header.getLastCellNum(); i <= header.getLastCellNum(); i ++) {
+				Cell cell = header.getCell(i);
+				if (cell.getCellTypeEnum() == CellType.NUMERIC) {
+					buffer.append(Double.toString(cell.getNumericCellValue()));
+					headersList.add(Double.toString(cell.getNumericCellValue()));
 				} else {
-					mapList.put(header, file);
-					headerList.put(file, rowConsumer.getHeaderList());
+					buffer.append(cell.getStringCellValue());
+					headersList.add(cell.getStringCellValue());
 				}
-			} catch (IOException | EncryptedDocumentException | InvalidFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		
-		if (!mergedList.isEmpty()) {
-			mergedList.forEach(new MergedBiConsumer(mapList));
-		}
-	}
-	
-	protected void computePrimaryFieldAndMasterFile() {
-		ArrayList<String> compareHeader = new ArrayList<String>();
-		for (File file : filesList) {
-			if (compareHeader.isEmpty()) {
-				compareHeader = headerList.get(file);
+			if (fileInfoMap.containsKey(buffer.toString())) {
+				FileInfo fileInfo = fileInfoMap.get(buffer.toString());
+				for (int i = sheet.getFirstRowNum() + 1; i <= sheet.getLastRowNum(); i ++) {
+					fileInfo.appendFileContent(sheet.getRow(i));
+				}
 			} else {
-				for (Object header : headerList.get(file)) {
-					if (compareHeader.contains(header)) {
-						primaryField = header.toString();
-						break;
-					}
+				FileInfo fileInfo = new FileInfo();
+				for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i ++) {
+					fileInfo.appendFileContent(sheet.getRow(i));
 				}
+				fileInfo.setFilePath(file.getAbsolutePath()).setHeaderList(headersList);
 			}
+			
+			wb.close();
+			file.delete();
 		}
 	}
 
@@ -151,92 +118,81 @@ class ExcelFilenameFilter implements FilenameFilter {
     }
 }
 
-class RowConsumer implements Consumer<Object> {
+class FileInfo {
 	
-	protected StringBuffer header;
+	private String filePath;
 	
-	protected ArrayList<String> headerList;
+	private ArrayList<String> headersList;
 	
-	RowConsumer() {
-		header = new StringBuffer();
-		headerList = new ArrayList<String>();
-	}
-
-	@Override
-	public void accept(Object t) {
-		header.append(t.toString());
-		headerList.add(t.toString());
-	}
+	private ArrayList<Row> fileContent;
 	
-	public String getHeaderString() {
-		return header.toString();
+	private boolean isMaster;
+	
+	private String primaryFieldName;
+	
+	FileInfo() {
+		isMaster = false;
+		primaryFieldName = filePath = new String();
+		headersList = new ArrayList<String>();
+		fileContent = new ArrayList<Row>();
 	}
 	
-	public ArrayList<String> getHeaderList() {
-		return headerList;
+	public String getFilePath() {
+		return filePath;
 	}
 	
-}
-
-class MergedBiConsumer implements BiConsumer<String, ArrayList<Row>> {
-	
-	protected HashMap<String, File> mapList;
-	
-	MergedBiConsumer(HashMap<String, File> mapList) {
-		this.mapList = mapList;
-	}
-
-	@Override
-	public void accept(String t, ArrayList<Row> u) {
-		try {
-			Workbook wb = WorkbookFactory.create(new FileInputStream(mapList.get(t)));
-			rebuild(wb, u);
-			FileOutputStream fos = new FileOutputStream(mapList.get(t));
-			wb.write(fos);
-			wb.close();
-		} catch (EncryptedDocumentException | InvalidFormatException | IOException | IllegalArgumentException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public FileInfo setFilePath(String filePath) {
+		this.filePath = filePath;
+		return this;
 	}
 	
-	protected void rebuild(Workbook wb, ArrayList<Row> u) {
-		wb.removeSheetAt(0);
-		Sheet sheet = wb.createSheet();
-		for (int i = 0; i < u.size(); i++) {
-			Row row = u.get(i);
-			RowConsumer rowConsumer = new RowConsumer(sheet, i);
-			row.forEach(rowConsumer);
-			sheet = rowConsumer.getSheet();
-		}
+	public String getPrimaryFieldName() {
+		return primaryFieldName;
 	}
 	
-	class RowConsumer implements Consumer<Cell> {
-		
-		protected Sheet sheet;
-		
-		protected int i;
-		
-		RowConsumer (Sheet sheet, int i) {
-			this.sheet = sheet;
-			this.i = i;
-			sheet.createRow(i);
-		}
-
-		@Override
-		public void accept(Cell t) {
-			Cell cell = sheet.getRow(i).createCell(t.getColumnIndex());
-			if (t.getCellTypeEnum() == CellType.NUMERIC) {
-				cell.setCellValue(t.getNumericCellValue());
+	public FileInfo setPrimaryFieldName(String primaryFieldName) {
+		this.primaryFieldName = primaryFieldName;
+		return this;
+	}
+	
+	public boolean getIsMaster() {
+		return isMaster;
+	}
+	
+	public FileInfo setIsMaster(boolean isMaster) {
+		this.isMaster = isMaster;
+		return this;
+	}
+	
+	public ArrayList<Row> getFileContent() {
+		return fileContent;
+	}
+	
+	public FileInfo setFileContent(ArrayList<Row> fileContent) {
+		this.fileContent = fileContent;
+		Row headerRow = this.fileContent.get(0);
+		for (int i = headerRow.getFirstCellNum(); i <= headerRow.getLastCellNum(); i ++) {
+			Cell cell = headerRow.getCell(i);
+			if (cell.getCellTypeEnum() == CellType.NUMERIC) {
+				headersList.add(Double.toString(cell.getNumericCellValue()));
 			} else {
-				cell.setCellValue(t.getStringCellValue());
+				headersList.add(cell.getStringCellValue());
 			}
 		}
-		
-		public Sheet getSheet() {
-			return sheet;
-		}
-		
+		return this;
 	}
 	
+	public FileInfo appendFileContent(Row row) {
+		fileContent.add(row);
+		return this;
+	}
+	
+	public ArrayList<String> getHeadersList() {
+		return headersList;
+	}
+	
+	public FileInfo setHeaderList(ArrayList<String> headersList) {
+		this.headersList = headersList;
+		return this;
+	}
 }

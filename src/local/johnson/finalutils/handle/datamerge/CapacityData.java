@@ -23,11 +23,16 @@ public class CapacityData {
 	
 	protected HashMap<String, FileInfo> fileInfoMap;
 	
+	protected HashMap<String, ArrayList<String>> relationTree;
+	
+	private final int EXPECT_LENGTH = 2;
+	
 	public DataMerge dataMerge;
 
 	public CapacityData(DataMerge dataMerge) {
 		this.dataMerge = dataMerge;
 		fileInfoMap = new HashMap<String, FileInfo>();
+		relationTree = new HashMap<String, ArrayList<String>>();
 	}
 	
 	public int handle() {
@@ -38,6 +43,7 @@ public class CapacityData {
 		
 		try {
 			initFileInfoMap(directory);
+			int resultState = mergeFileInfoMap();
 		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -80,6 +86,22 @@ public class CapacityData {
 			wb.close();
 			file.delete();
 		}
+	}
+	
+	protected int mergeFileInfoMap() {
+		if (fileInfoMap.size() != EXPECT_LENGTH) {
+			return 1;
+		}
+		return 0;
+	}
+	
+	protected String computePrimaryFieldName(ArrayList<String> h1, ArrayList<String> h2) {
+		for(String item : h1) {
+			if (h2.contains(item)) {
+				return item;
+			}
+		}
+		return null;
 	}
 
 }

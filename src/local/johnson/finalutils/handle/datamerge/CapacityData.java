@@ -84,7 +84,7 @@ public class CapacityData {
 				for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i ++) {
 					fileInfo.appendFileContent(sheet.getRow(i));
 				}
-				fileInfo.setFilePath(file.getAbsolutePath()).setHeaderList(headersList);
+				fileInfo.setFilePath(file.getAbsolutePath()).setHeaderList(headersList).setHeaderStr(buffer.toString());
 				fileInfoMap.put(buffer.toString(), fileInfo);
 			}
 			
@@ -101,7 +101,21 @@ public class CapacityData {
 		for (int i = 0; i < EXPECT_LENGTH - 1; i ++) {
 			for (int j = i; j < EXPECT_LENGTH - 1; j ++) {
 				String pfn = computePrimaryFieldName(fileInfoArr[j].getHeadersList(), fileInfoArr[j + 1].getHeadersList());
-				System.out.println(pfn);
+				ArrayList<String> value;
+				if (relationTree.containsKey(pfn)) {
+					value = relationTree.get(pfn);
+					if (!value.contains(fileInfoArr[j].getHeaderStr())) {
+						value.add(fileInfoArr[j].getHeaderStr());
+					}
+					if (!value.contains(fileInfoArr[j+1].getHeaderStr())) {
+						value.add(fileInfoArr[j+1].getHeaderStr());
+					}
+				} else {
+					value = new ArrayList<String>();
+					value.add(fileInfoArr[j].getHeaderStr());
+					value.add(fileInfoArr[j+1].getHeaderStr());
+				}
+				relationTree.put(pfn, value);
 			}
 		}
 		return 0;
@@ -160,6 +174,8 @@ class FileInfo {
 	
 	private ArrayList<Row> fileContent;
 	
+	private String headerStr;
+	
 	private boolean isMaster;
 	
 	private String primaryFieldName;
@@ -169,6 +185,7 @@ class FileInfo {
 		primaryFieldName = filePath = new String();
 		headersList = new ArrayList<String>();
 		fileContent = new ArrayList<Row>();
+		headerStr = new String();
 	}
 	
 	public String getFilePath() {
@@ -177,6 +194,15 @@ class FileInfo {
 	
 	public FileInfo setFilePath(String filePath) {
 		this.filePath = filePath;
+		return this;
+	}
+	
+	public String getHeaderStr() {
+		return headerStr;
+	}
+	
+	public FileInfo setHeaderStr(String headerStr) {
+		this.headerStr = headerStr;
 		return this;
 	}
 	

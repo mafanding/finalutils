@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -60,14 +61,16 @@ public class CapacityData {
 			Row header = sheet.getRow(sheet.getFirstRowNum());
 			StringBuffer buffer = new StringBuffer();
 			ArrayList<String> headersList = new ArrayList<String>();
-			for (int i = header.getLastCellNum(); i <= header.getLastCellNum(); i ++) {
+			for (int i = header.getFirstCellNum(); i <= header.getLastCellNum(); i ++) {
 				Cell cell = header.getCell(i);
-				if (cell.getCellTypeEnum() == CellType.NUMERIC) {
-					buffer.append(Double.toString(cell.getNumericCellValue()));
-					headersList.add(Double.toString(cell.getNumericCellValue()));
-				} else {
-					buffer.append(cell.getStringCellValue());
-					headersList.add(cell.getStringCellValue());
+				if (cell != null) {
+					if (cell.getCellTypeEnum() == CellType.NUMERIC) {
+						buffer.append(Double.toString(cell.getNumericCellValue()));
+						headersList.add(Double.toString(cell.getNumericCellValue()));
+					} else {
+						buffer.append(cell.getStringCellValue());
+						headersList.add(cell.getStringCellValue());
+					}
 				}
 			}
 			if (fileInfoMap.containsKey(buffer.toString())) {
@@ -75,12 +78,14 @@ public class CapacityData {
 				for (int i = sheet.getFirstRowNum() + 1; i <= sheet.getLastRowNum(); i ++) {
 					fileInfo.appendFileContent(sheet.getRow(i));
 				}
+				fileInfoMap.put(buffer.toString(), fileInfo);
 			} else {
 				FileInfo fileInfo = new FileInfo();
 				for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i ++) {
 					fileInfo.appendFileContent(sheet.getRow(i));
 				}
 				fileInfo.setFilePath(file.getAbsolutePath()).setHeaderList(headersList);
+				fileInfoMap.put(buffer.toString(), fileInfo);
 			}
 			
 			wb.close();
@@ -91,6 +96,13 @@ public class CapacityData {
 	protected int mergeFileInfoMap() {
 		if (fileInfoMap.size() != EXPECT_LENGTH) {
 			return 1;
+		}
+		FileInfo fileInfoArr[] = fileInfoMap.values().toArray(new FileInfo[EXPECT_LENGTH]);
+		for (int i = 0; i < EXPECT_LENGTH - 1; i ++) {
+			for (int j = i; j < EXPECT_LENGTH - 1; j ++) {
+				String pfn = computePrimaryFieldName(fileInfoArr[j].getHeadersList(), fileInfoArr[j + 1].getHeadersList());
+				System.out.println(pfn);
+			}
 		}
 		return 0;
 	}

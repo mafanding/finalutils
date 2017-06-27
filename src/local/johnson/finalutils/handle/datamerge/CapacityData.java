@@ -1,15 +1,10 @@
 package local.johnson.finalutils.handle.datamerge;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -44,7 +39,7 @@ public class CapacityData {
 		
 		try {
 			initFileInfoMap(directory);
-			int resultState = mergeFileInfoMap();
+			initRelationTree();
 		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,9 +88,9 @@ public class CapacityData {
 		}
 	}
 	
-	protected int mergeFileInfoMap() {
+	protected void initRelationTree() {
 		if (fileInfoMap.size() != EXPECT_LENGTH) {
-			return 1;
+			return;
 		}
 		FileInfo fileInfoArr[] = fileInfoMap.values().toArray(new FileInfo[EXPECT_LENGTH]);
 		for (int i = 0; i < EXPECT_LENGTH - 1; i ++) {
@@ -106,19 +101,28 @@ public class CapacityData {
 					value = relationTree.get(pfn);
 					if (!value.contains(fileInfoArr[j].getHeaderStr())) {
 						value.add(fileInfoArr[j].getHeaderStr());
+						fileInfoMap.put(fileInfoArr[j].getHeaderStr(), fileInfoMap.get(fileInfoArr[j].getHeaderStr()).increamRefCount());
 					}
 					if (!value.contains(fileInfoArr[j+1].getHeaderStr())) {
-						value.add(fileInfoArr[j+1].getHeaderStr());
+						value.add(fileInfoArr[j + 1].getHeaderStr());
+						fileInfoMap.put(fileInfoArr[j + 1].getHeaderStr(), fileInfoMap.get(fileInfoArr[j + 1].getHeaderStr()).increamRefCount());
 					}
 				} else {
 					value = new ArrayList<String>();
 					value.add(fileInfoArr[j].getHeaderStr());
-					value.add(fileInfoArr[j+1].getHeaderStr());
+					fileInfoMap.put(fileInfoArr[j].getHeaderStr(), fileInfoMap.get(fileInfoArr[j].getHeaderStr()).increamRefCount());
+					value.add(fileInfoArr[j + 1].getHeaderStr());
+					fileInfoMap.put(fileInfoArr[j + 1].getHeaderStr(), fileInfoMap.get(fileInfoArr[j + 1].getHeaderStr()).increamRefCount());
 				}
 				relationTree.put(pfn, value);
 			}
 		}
-		return 0;
+	}
+	
+	protected void mergeFileInfoMap() {
+		if (relationTree.isEmpty()) {
+			return ;
+		}
 	}
 	
 	protected String computePrimaryFieldName(ArrayList<String> h1, ArrayList<String> h2) {
@@ -180,12 +184,15 @@ class FileInfo {
 	
 	private String primaryFieldName;
 	
+	private int refCount;
+	
 	FileInfo() {
 		isMaster = false;
 		primaryFieldName = filePath = new String();
 		headersList = new ArrayList<String>();
 		fileContent = new ArrayList<Row>();
 		headerStr = new String();
+		refCount = 0;
 	}
 	
 	public String getFilePath() {
@@ -194,6 +201,28 @@ class FileInfo {
 	
 	public FileInfo setFilePath(String filePath) {
 		this.filePath = filePath;
+		return this;
+	}
+	
+	public int getRefCount() {
+		return refCount;
+	}
+	
+	public FileInfo increamRefCount() {
+		return increamRefCount(1);
+	}
+	
+	public FileInfo decreamRefCount() {
+		return decreamRefCount(1);
+	}
+	
+	public FileInfo increamRefCount(int num) {
+		refCount += num;
+		return this;
+	}
+	
+	public FileInfo decreamRefCount(int num) {
+		refCount -= num;
 		return this;
 	}
 	

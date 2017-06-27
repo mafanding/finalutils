@@ -3,7 +3,6 @@ package local.johnson.finalutils.event.tinytool.unixtime;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.lang3.math.NumberUtils;
